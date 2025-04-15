@@ -51,9 +51,9 @@ def index():
 def cadastro():
     if request.method == 'POST':
         cidade = request.form['cidade']
-        tipo_midia = request.form['tipo']
+        tipo_midia = request.form['tipo_midia']
         periodo = request.form['periodo']
-        valor_fornecedor = float(request.form['valor'])
+        valor_fornecedor = float(request.form['valor_fornecedor'])
         fornecedor = request.form['fornecedor']
 
         with sqlite3.connect(DB_PONTOS) as conn:
