@@ -91,13 +91,18 @@ def orcamento():
                     valor_fornecedor_unitario = row[0]
                     custo_material = custo_papel if material == 'papel' else custo_lona
                     subtotal_fornecedor = (valor_fornecedor_unitario + custo_material) * qtd * bisemanas
-                    subtotal_cliente_liquido = subtotal_fornecedor * (1 + margem_lucro)
-                    subtotal_cliente = subtotal_cliente_liquido * (1 + imposto)
+
+                    base = 1 - margem_lucro - imposto
+                    if base <= 0:
+                        raise ValueError("A soma da margem de lucro e imposto não pode ser igual ou superior a 100%.")
+
+                    subtotal_cliente = subtotal_fornecedor / base
+
                     total_fornecedor += subtotal_fornecedor
                     total_cliente += subtotal_cliente
                     dados_detalhados.append(f"{qtd}x {tipo} em {cidade} por {bisemanas} bi-semanas usando {material}: R${subtotal_cliente:.2f}")
 
-        lucro = total_cliente - total_fornecedor
+        lucro = total_cliente - total_fornecedor - (total_cliente * imposto)
         dados_string = '; '.join(dados_detalhados)
         data_criacao = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -124,6 +129,7 @@ def orcamento():
             tipos = [row[0] for row in cursor.fetchall()]
 
         return render_template('orcamento.html', cidades=cidades, tipos=tipos)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
