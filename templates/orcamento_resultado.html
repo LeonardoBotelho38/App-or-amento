@@ -7,7 +7,7 @@
 </head>
 <body class="container py-5">
     <div style="display: flex; align-items: center;">
-        <img src="{{ url_for('static', filename='logoMatoGrossoOutdoor.jpeg') }}" alt="Logo Mato Grosso Outdoor" style="max-width: 200px; margin-right: 15px;">
+        <img src="{{ url_for('static', filename='logoMatoGrossoOutdoor.jpeg') }}" alt="Logo Mato Grosso Outdoor" style="max-width: 150px; margin-right: 15px;">
         <h1 class="mb-4">Proposta Mato Grosso Outdoors</h1>
     </div>
 
@@ -23,6 +23,15 @@
     {% if total %}
         <h2 class="mb-3">Valor Total do Orçamento:</h2>
         <p class="lead">R$ {{ total|round(2) }}</p>
+    {% endif %}
+
+    {% if parcelas and parcelas > 1 %}
+        <h2 class="mb-3">Pagamento Parcelado:</h2>
+        <ul class="list-group mb-4">
+            {% for p in range(parcelas) %}
+                <li class="list-group-item">{{ p + 1 }}x de R$ {{ parcelas_lista[p]|round(2) }}</li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     <a href="/orcamento" class="btn btn-primary">Gerar Novo Orçamento</a>

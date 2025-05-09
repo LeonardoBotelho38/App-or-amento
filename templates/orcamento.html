@@ -67,7 +67,12 @@
             <div class="col"><input type="number" name="imposto" class="form-control" placeholder="Imposto (%)" required></div>
             <div class="col"><input type="number" name="margem_lucro" class="form-control" placeholder="Margem de Lucro (%)" required></div>
         </div>
-
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" name="parcelas" class="form-control" placeholder="Parcelar em quantas vezes?" min="1" value="1" required>
+            </div>
+        </div>
+        
         <button type="submit" class="btn btn-success">Calcular Orçamento</button>
     </form>
 </body>

@@ -5,9 +5,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Banco de dados dos pontos (agora o correto)
 DB_PONTOS = 'database.db'
-# Banco de dados dos orçamentos
 DB_ORCAMENTOS = 'orcamentos.db'
 
 def init_db():
@@ -74,6 +72,7 @@ def orcamento():
         custo_papel = float(request.form['custo_papel'])
         custo_lona = float(request.form['custo_lona'])
         margem_lucro = float(request.form['margem_lucro']) / 100
+        parcelas = int(request.form.get('parcelas', 1))
 
         total_cliente = 0
         total_fornecedor = 0
@@ -106,7 +105,13 @@ def orcamento():
         dados_string = '; '.join(dados_detalhados)
         data_criacao = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Salvar no banco de orçamentos
+        # Parcelamento
+        valor_parcela_base = round(total_cliente / parcelas, 2)
+        parcelas_lista = [valor_parcela_base] * parcelas
+        diferenca = round(total_cliente - sum(parcelas_lista), 2)
+        parcelas_lista[-1] += diferenca  # Ajusta a última parcela
+
+        # Salvar orçamento
         with sqlite3.connect(DB_ORCAMENTOS) as conn:
             cursor_orcamentos = conn.cursor()
             if pontos:
@@ -117,10 +122,9 @@ def orcamento():
                 ''', (cidade_exemplo, tipo_exemplo, len(pontos), sum(int(p.split('|')[3]) for p in pontos), material_exemplo, total_cliente, total_fornecedor, lucro, data_criacao, dados_string))
                 conn.commit()
 
-        return render_template('orcamento_resultado.html', dados=dados_detalhados, total=total_cliente)
+        return render_template('orcamento_resultado.html', dados=dados_detalhados, total=total_cliente, parcelas=parcelas, parcelas_lista=parcelas_lista)
 
     else:
-        # Coleta cidades e tipos disponíveis DA TABELA CORRETA 'contratos'
         with sqlite3.connect(DB_PONTOS) as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT DISTINCT cidade FROM contratos')
@@ -129,7 +133,6 @@ def orcamento():
             tipos = [row[0] for row in cursor.fetchall()]
 
         return render_template('orcamento.html', cidades=cidades, tipos=tipos)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
